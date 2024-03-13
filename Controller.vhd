@@ -45,7 +45,7 @@ architecture rtl of Brom is
 
 begin
 
-    process(clk, rst_n, CE)
+    process(clk, rst_n, CE, rom_addr)
     begin
         if rising_edge(clk) then
            if(rst_n = '0') then
