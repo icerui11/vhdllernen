@@ -1,18 +1,3 @@
---============================================================================--
--- Design unit  : Rom_controller module
---
--- File name    : Brom_tb.vhd
---
--- Purpose      : read data from rom
---
--- Note         :
---
--- Library      : shyloc_utils
---
--- Author       : Rui Yin
---
--- Instantiates : 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -30,8 +15,10 @@ architecture tb of Brom_tb is
   
   -- Signals for testbench
   signal CE : std_logic := '0';
-  signal rom_addr: std_logic_vector (addr-1 downto 0);
-  signal rom_data_o_tb : std_logic_vector(width-1 downto 0);
+  signal rom_addr: std_logic_vector (addr-1 downto 0) := (others => '0');
+  signal clk : std_logic := '0';
+  signal rst_n: std_logic := '0';
+  signal rom_data_o_tb : std_logic_vector(width-1 downto 0) := (others => '0');
   signal DataIn_NewValid_tb : std_logic := '0';
 
   -- Component declaration
@@ -44,6 +31,8 @@ architecture tb of Brom_tb is
     port (
       CE : in std_logic;
       rom_addr: in std_logic_vector (addr-1 downto 0);
+	clk:              in std_logic;
+	rst_n:            in std_logic;
       rom_data_o : out std_logic_vector(width-1 downto 0);
       DataIn_NewValid : out std_logic
     );
@@ -60,16 +49,39 @@ begin
     port map (
       CE => CE,
       rom_addr => rom_addr,
+       clk => clk,
+       rst_n => rst_n,
       rom_data_o => rom_data_o_tb,
       DataIn_NewValid => DataIn_NewValid_tb
     );
+ clk_process : process
+    begin
+	wait for 10ns;
+	clk <= '1';
+	wait for 10ns;
+	clk <= '0';
+end process;
+
+gen_rst: process
+begin 
+    rst_n <= '0';
+    wait for 20 ns;
+    rst_n <= '1';
+    wait for 3600 ns;
+    rst_n <= '1';
+    wait;
+end process;
+
 process
  begin
     CE <= '0';
     wait for 10 ns; 
     CE <= '1';
     wait for 10 ns;
+    CE <= '1';
+    wait;
 end process;
+
   stimulus : process
   begin
 
@@ -81,3 +93,4 @@ end process;
   end process stimulus;
 
 end tb;
+
