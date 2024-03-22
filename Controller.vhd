@@ -17,13 +17,13 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-library Rom;
-use Rom.ROM_Package.all;
+library src;
+use src.ROM_Package.all;
 
 entity Brom is
     generic(
     width : integer:= 32;
-	depth : integer:= 162;
+	depth : integer:= 128;
 	addr  : integer:=8);
     
      Port ( 
@@ -48,7 +48,7 @@ architecture rtl of Brom is
 
 begin
 
-    process(clk, rst_n)
+    process(clk, rst_n, CE)
     begin
       if(rst_n = '0') then
         rom_data_o <= (others => '0');
