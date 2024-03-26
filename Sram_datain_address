@@ -32,33 +32,40 @@ entity Sram_address is
         rst_n : in STD_LOGIC;
         CE : in STD_LOGIC;
         ready : in std_logic;
+        Datain_newvalid : out std_logic;
 	rom_addr: out std_logic_vector (addr-1 downto 0)
     );
 end Sram_address;
 
 architecture rtl of Sram_address is
 	signal address : unsigned(31 downto 0) := (others => '0');
-
+        signal Datain_newvalid_temp : std_logic := '0';
 begin
 
     process(clk, rst_n, CE, ready)
     begin
 	 if rst_n = '0' then 
             address <= (others => '0');
+            Datain_newvalid_temp <= '0';
            elsif rising_edge(clk) then
              if ready = '0' then
                 address <= (others => '0');
+                Datain_newvalid_temp <= '0';
              else
               if (CE = '1' and (address < depth)) then
-                address <= address + 1;
+                 address <= address + 1;
+                 Datain_newvalid_temp <= '1';
               elsif (CE = '0' and (address < depth)) then
-                address <= address;  
+                 address <= address; 
+                 Datain_newvalid_temp <= '0'; 
 	          else
 	            address <= (others => '0');
+                    Datain_newvalid_temp <= '0';
               end if;
-	         end if;
-     end if;
+	     end if;
+          end if;
     end process;
 	rom_addr <= std_logic_vector(address(addr-1 downto 0));
+        Datain_newvalid <= Datain_newvalid_temp;
  
 end rtl;
