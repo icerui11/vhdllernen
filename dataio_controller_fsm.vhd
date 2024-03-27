@@ -63,7 +63,6 @@ begin
          Datain_valid_temp <= '0';
          rom_en_temp <= '0';
          ram_en_temp <= '0';
-
         case curr_state is
             when idle =>
                   Datain_valid_temp <= '0';
