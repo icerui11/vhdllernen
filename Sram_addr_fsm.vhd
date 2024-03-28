@@ -57,13 +57,13 @@ begin
         end if;
     end process;
     
-    process(current_state, CE, ready, finish, Eop)
+    process(current_state, ready, finish, Eop, address)
     begin
 --        Datain_complete <= '0';
           case current_state is 
             when idle =>               --detemine if the new compression has arrived by finish signal
               Datain_complete <= '0';
-              if finish = '0' then  
+              if finish = '0' and ready = '1' then  
                 if Datain_complete = '0' then                               --if the data is not complete then go to write state
                     next_state <= write;
                 else
@@ -77,12 +77,20 @@ begin
               if address >= (depth-1) then                            --when the ready high and address is greater than depth then go to complete state
                  Datain_complete <= '1';
                  next_state <= write_done;  
-                elsif ready = '0' or finish = '1' then
-                   next_state <= idle;                                                
-                else                                         -- ready is high and finish low CE is high then go to write state
+      --          elsif ready = '0' or finish = '1' then
+      --             next_state <= idle;                                                
+--                elsif CE = '1' then                                         -- ready is high and finish low CE is high then go to write state
+--                  address <= address + 1;
+--                  Datain_newvalid_temp <= '1';
+              else
                    Datain_complete <= '0';
-                   next_state <= write;                           --stay in write state, until the address is greater than depth-1
-                end if;
+                   next_state <= write; 
+--                else
+--                  address <= address;
+--                  Datain_newvalid_temp <= '0';
+--                   Datain_complete <= '0';
+--                   next_state <= write;                           --stay in write state, until the address is greater than depth-1
+                end if;             
             when write_done =>
               if Eop = '1' then
                 next_state <= idle;
@@ -95,14 +103,14 @@ begin
           end case;
     end process;
 
-address_inc: process(clk, rst_n, CE)
+address_inc: process(clk, rst_n)
 begin
     if rising_edge(clk) then
       if rst_n = '0' then
         address <= (others => '0');
         Datain_newvalid_temp <= '0';
       else
-        if Datain_complete = '0' and  CE = '1' and next_state = write then
+        if Datain_complete = '0' and next_state = write then
             if address >= (depth-1) then
               address <= (others => '0');
               Datain_newvalid_temp <= '0';
@@ -120,7 +128,6 @@ begin
       end if;
     end if;
 end process;
-
         rom_addr <= std_logic_vector(address(addr-1 downto 0));
         Datain_newvalid <= Datain_newvalid_temp;
 end rtl;
